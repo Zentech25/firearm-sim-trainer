@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, Plus, Trash2, Edit2, Check, X, ChevronRight, ChevronDown,
   Target, Clock, Move, RotateCcw, UserPlus, Crosshair, Folder, FolderOpen,
-  Shield, Anchor, Plane, Building2, Layers,
+  Shield, Anchor, Plane, Building2, Layers, Camera, ImagePlus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // --- Types ---
 interface OrbatNode {
@@ -31,6 +32,7 @@ interface Trainee {
   weapon: string;
   orbatPath: string[]; // ids from root to leaf
   orbatLabel: string;
+  photo?: string; // data URL for trainee photo
 }
 
 // --- Constants ---
@@ -131,17 +133,52 @@ const EXERCISE_TREE = [
   },
 ];
 
-// Default ORBAT
+// Default ORBAT with dummy structure
 const createDefaultOrbat = (): OrbatNode => ({
   id: "org",
   name: "Organization",
   type: "organization",
   children: [
-    { id: "army", name: "Army", type: "branch", children: [] },
-    { id: "navy", name: "Navy", type: "branch", children: [] },
-    { id: "airforce", name: "Air Force", type: "branch", children: [] },
+    { id: "army", name: "Army", type: "branch", children: [
+      { id: "reg_1", name: "1st Infantry Regiment", type: "regiment", children: [
+        { id: "unit_1a", name: "Alpha Unit", type: "unit", children: [
+          { id: "comp_1a1", name: "Alpha Company", type: "company", children: [
+            { id: "plat_1a1a", name: "1st Platoon", type: "platoon", children: [
+              { id: "sec_1a1a1", name: "Section A", type: "section", children: [] },
+              { id: "sec_1a1a2", name: "Section B", type: "section", children: [] },
+            ]},
+            { id: "plat_1a1b", name: "2nd Platoon", type: "platoon", children: [] },
+          ]},
+          { id: "comp_1a2", name: "Bravo Company", type: "company", children: [] },
+        ]},
+        { id: "unit_1b", name: "Bravo Unit", type: "unit", children: [] },
+      ]},
+      { id: "reg_2", name: "2nd Armoured Regiment", type: "regiment", children: [
+        { id: "unit_2a", name: "Delta Unit", type: "unit", children: [] },
+      ]},
+    ]},
+    { id: "navy", name: "Navy", type: "branch", children: [
+      { id: "reg_n1", name: "Western Fleet", type: "regiment", children: [] },
+    ]},
+    { id: "airforce", name: "Air Force", type: "branch", children: [
+      { id: "reg_af1", name: "51 Squadron", type: "regiment", children: [] },
+    ]},
   ],
 });
+
+// Dummy trainees
+const createDummyTrainees = (): Trainee[] => [
+  { id: "t1", sno: 1, traineeNumber: "TN-1001", rank: "Sipahi", name: "Rajesh Kumar", firerMasterHand: "Right Hand Firer", weapon: "5.56mm INSAS Rifle", orbatPath: ["org", "army", "reg_1", "unit_1a", "comp_1a1", "plat_1a1a", "sec_1a1a1"], orbatLabel: "Organization > Army > 1st Infantry Regiment > Alpha Unit > Alpha Company > 1st Platoon > Section A" },
+  { id: "t2", sno: 2, traineeNumber: "TN-1002", rank: "Lance Naik", name: "Vikram Singh", firerMasterHand: "Right Hand Firer", weapon: "5.56mm INSAS Rifle", orbatPath: ["org", "army", "reg_1", "unit_1a", "comp_1a1", "plat_1a1a", "sec_1a1a1"], orbatLabel: "Organization > Army > 1st Infantry Regiment > Alpha Unit > Alpha Company > 1st Platoon > Section A" },
+  { id: "t3", sno: 3, traineeNumber: "TN-1003", rank: "Naik", name: "Amit Sharma", firerMasterHand: "Left Hand Firer", weapon: "7.62mm Sig 716", orbatPath: ["org", "army", "reg_1", "unit_1a", "comp_1a1", "plat_1a1a", "sec_1a1a2"], orbatLabel: "Organization > Army > 1st Infantry Regiment > Alpha Unit > Alpha Company > 1st Platoon > Section B" },
+  { id: "t4", sno: 4, traineeNumber: "TN-1004", rank: "Havildar", name: "Suresh Patel", firerMasterHand: "Right Hand Firer", weapon: "5.56mm INSAS LMG", orbatPath: ["org", "army", "reg_1", "unit_1a", "comp_1a1", "plat_1a1a", "sec_1a1a2"], orbatLabel: "Organization > Army > 1st Infantry Regiment > Alpha Unit > Alpha Company > 1st Platoon > Section B" },
+  { id: "t5", sno: 5, traineeNumber: "TN-1005", rank: "Naib Subedar", name: "Deepak Yadav", firerMasterHand: "Right Hand Firer", weapon: "9mm PISTOL", orbatPath: ["org", "army", "reg_1", "unit_1a", "comp_1a1", "plat_1a1b"], orbatLabel: "Organization > Army > 1st Infantry Regiment > Alpha Unit > Alpha Company > 2nd Platoon" },
+  { id: "t6", sno: 6, traineeNumber: "TN-1006", rank: "Subedar", name: "Manoj Tiwari", firerMasterHand: "Right Hand Firer", weapon: "9mm PISTOL", orbatPath: ["org", "army", "reg_1", "unit_1a", "comp_1a2"], orbatLabel: "Organization > Army > 1st Infantry Regiment > Alpha Unit > Bravo Company" },
+  { id: "t7", sno: 7, traineeNumber: "TN-1007", rank: "Captain", name: "Arjun Nair", firerMasterHand: "Right Hand Firer", weapon: "9mm PISTOL", orbatPath: ["org", "army", "reg_1", "unit_1b"], orbatLabel: "Organization > Army > 1st Infantry Regiment > Bravo Unit" },
+  { id: "t8", sno: 8, traineeNumber: "TN-1008", rank: "Major", name: "Pradeep Chauhan", firerMasterHand: "Left Hand Firer", weapon: "7.62mm SLR", orbatPath: ["org", "army", "reg_2", "unit_2a"], orbatLabel: "Organization > Army > 2nd Armoured Regiment > Delta Unit" },
+  { id: "t9", sno: 9, traineeNumber: "TN-1009", rank: "Lieutenant", name: "Kiran Desai", firerMasterHand: "Right Hand Firer", weapon: "AK-47", orbatPath: ["org", "navy", "reg_n1"], orbatLabel: "Organization > Navy > Western Fleet" },
+  { id: "t10", sno: 10, traineeNumber: "TN-1010", rank: "Sipahi", name: "Ravi Gupta", firerMasterHand: "Right Hand Firer", weapon: "5.56mm INSAS Rifle", orbatPath: ["org", "airforce", "reg_af1"], orbatLabel: "Organization > Air Force > 51 Squadron" },
+];
 
 const ORBAT_CHILD_TYPE: Record<string, OrbatNode["type"]> = {
   branch: "regiment",
@@ -394,7 +431,10 @@ const Mission = () => {
   const [traineeName, setTraineeName] = useState("");
   const [firerHand, setFirerHand] = useState("Right Hand Firer");
   const [weapon, setWeapon] = useState("9mm PISTOL");
-  const [trainees, setTrainees] = useState<Trainee[]>([]);
+  const [trainees, setTrainees] = useState<Trainee[]>(createDummyTrainees);
+  const [traineePhoto, setTraineePhoto] = useState<string | undefined>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   let snoCounter = trainees.length > 0 ? Math.max(...trainees.map(t => t.sno)) + 1 : 1;
 
   // Exercise state
@@ -484,6 +524,15 @@ const Mission = () => {
     return null;
   }, []);
 
+  const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setTraineePhoto(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
   const addTrainee = () => {
     if (!traineeNumber || !traineeRank || !traineeName) return;
     const path = getOrbatPath(orbat, selectedOrbatId) || [selectedOrbatId];
@@ -498,9 +547,11 @@ const Mission = () => {
       weapon,
       orbatPath: path,
       orbatLabel: label,
+      photo: traineePhoto,
     }]);
     setTraineeNumber("");
     setTraineeName("");
+    setTraineePhoto(undefined);
   };
 
   const deleteTrainee = (id: string) => {
@@ -609,7 +660,47 @@ const Mission = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Photo Upload */}
+                        <div className="space-y-1 row-span-2">
+                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Photo</label>
+                          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoFile} />
+                          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoFile} />
+                          <div className="flex flex-col items-center gap-2">
+                            <motion.div
+                              className="relative h-20 w-20 rounded-xl border-2 border-dashed border-border/60 bg-muted/30 flex items-center justify-center overflow-hidden cursor-pointer group"
+                              whileHover={{ scale: 1.05, borderColor: "hsl(var(--primary))" }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              {traineePhoto ? (
+                                <>
+                                  <img src={traineePhoto} alt="Trainee" className="h-full w-full object-cover" />
+                                  <motion.div
+                                    className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <Edit2 className="h-4 w-4 text-foreground" />
+                                  </motion.div>
+                                </>
+                              ) : (
+                                <ImagePlus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                              )}
+                            </motion.div>
+                            <div className="flex gap-1">
+                              <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={() => fileInputRef.current?.click()}>
+                                <ImagePlus className="h-3 w-3" /> Browse
+                              </Button>
+                              <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={() => cameraInputRef.current?.click()}>
+                                <Camera className="h-3 w-3" /> Camera
+                              </Button>
+                            </div>
+                            {traineePhoto && (
+                              <Button variant="ghost" size="sm" className="h-5 px-2 text-[9px] text-destructive" onClick={() => setTraineePhoto(undefined)}>
+                                Remove
+                              </Button>
+                            )}
+                          </div>
+                        </div>
                         <div className="space-y-1">
                           <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Trainee Number</label>
                           <Input value={traineeNumber} onChange={(e) => setTraineeNumber(e.target.value)} placeholder="Enter number" className="h-8 text-sm" />
@@ -669,6 +760,7 @@ const Mission = () => {
                           <TableHeader>
                             <TableRow className="border-border/30">
                               <TableHead className="text-[10px] font-mono w-12">SNo</TableHead>
+                              <TableHead className="text-[10px] font-mono w-12">Photo</TableHead>
                               <TableHead className="text-[10px] font-mono">Number</TableHead>
                               <TableHead className="text-[10px] font-mono">Rank</TableHead>
                               <TableHead className="text-[10px] font-mono">Name</TableHead>
@@ -690,6 +782,12 @@ const Mission = () => {
                                   transition={{ delay: i * 0.03 }}
                                 >
                                   <TableCell className="font-mono text-xs text-muted-foreground">{t.sno}</TableCell>
+                                  <TableCell>
+                                    <Avatar className="h-7 w-7">
+                                      <AvatarImage src={t.photo} />
+                                      <AvatarFallback className="text-[9px] bg-muted/50">{t.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                                    </Avatar>
+                                  </TableCell>
                                   <TableCell className="font-mono text-xs">{t.traineeNumber}</TableCell>
                                   <TableCell className="text-xs">{t.rank}</TableCell>
                                   <TableCell className="text-xs font-medium">{t.name}</TableCell>
@@ -710,7 +808,7 @@ const Mission = () => {
                             </AnimatePresence>
                             {filteredTrainees.length === 0 && (
                               <TableRow>
-                                <TableCell colSpan={8} className="text-center text-xs text-muted-foreground py-8">
+                                <TableCell colSpan={9} className="text-center text-xs text-muted-foreground py-8">
                                   No trainees in selected ORBAT node
                                 </TableCell>
                               </TableRow>
