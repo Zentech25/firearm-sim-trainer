@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -57,13 +57,14 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
   }
 }
 
 @layer utilities {
   .font-mono-tactical {
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
   }
 
   .tactical-border {
