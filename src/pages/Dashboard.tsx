@@ -91,15 +91,25 @@ const Dashboard = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="flex items-center gap-4">
-          <motion.div
+          <motion.button
             className="flex items-center gap-2"
             whileHover={{ scale: 1.05 }}
+            onClick={() => navigate("/dashboard")}
           >
             <Crosshair className="h-6 w-6 text-primary" />
             <span className="font-mono text-lg font-bold tracking-[0.15em] text-foreground">IWTS</span>
-          </motion.div>
+          </motion.button>
           <div className="h-6 w-px bg-border" />
-          <span className="text-sm text-muted-foreground">Dashboard</span>
+          <nav className="flex items-center gap-1">
+            <motion.button
+              onClick={() => navigate("/mission")}
+              className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Mission
+            </motion.button>
+          </nav>
         </div>
         <div className="flex items-center gap-3">
           <motion.div
