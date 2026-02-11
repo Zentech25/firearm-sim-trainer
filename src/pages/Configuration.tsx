@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronLeft } from "lucide-react";
 
 // --- Types ---
@@ -480,18 +481,244 @@ const TraineeCreation = () => {
   );
 };
 
-const ArcTool = () => (
-  <div className="flex-1 flex items-center justify-center p-8">
-    <div className="glass-tile-elevated rounded-2xl max-w-md text-center p-8">
-      <motion.div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-status-info/30 bg-status-info/10"
-        animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 4, repeat: Infinity }}>
-        <Wrench className="h-8 w-8 text-status-info" />
-      </motion.div>
-      <h2 className="text-xl font-bold text-foreground mb-2">ARC Tool</h2>
-      <p className="text-sm text-muted-foreground">Advanced Range Configuration tool. Configure arc parameters for training scenarios.</p>
+const ArcTool = () => {
+  const [weapon, setWeapon] = useState("9mm PISTOL");
+  const [rangeCourse, setRangeCourse] = useState("9mm Pistol Range Course");
+  const [courseType, setCourseType] = useState("Preliminary Marksmanship");
+  const [practiceType, setPracticeType] = useState("");
+  const [firingPosition, setFiringPosition] = useState("SU (Standing Unsupported)");
+  const [rangeMeters, setRangeMeters] = useState(25);
+  const [exerciseBehaviour, setExerciseBehaviour] = useState("Grouping");
+  const [ammunition, setAmmunition] = useState(5);
+  const [ammoType, setAmmoType] = useState("BALL");
+  const [selectedTarget, setSelectedTarget] = useState("Fig 11");
+  const [settingsMode, setSettingsMode] = useState<"advance" | "scoring">("scoring");
+  const [groupSize, setGroupSize] = useState(20);
+  const [illumination, setIllumination] = useState(false);
+  const [illuminationType, setIlluminationType] = useState("");
+  const [intervalVal, setIntervalVal] = useState(1);
+  const [rounds, setRounds] = useState(1);
+  const [rangeVal, setRangeVal] = useState(20);
+  const [remarks, setRemarks] = useState("");
+
+  interface ArcExercise {
+    id: number; practiceType: string; position: string; range: number; target: string; ammunition: number; groupSize: number; remarks: string; ammoType: string;
+  }
+  const [exercises, setExercises] = useState<ArcExercise[]>([
+    { id: 1, practiceType: "Introductory Shoot", position: "SU (Standing Unsupported)", range: 10, target: "Zeroing Target 120 Cms", ammunition: 5, groupSize: 20, remarks: "To be fired once only during the exercise", ammoType: "BALL" },
+  ]);
+  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(1);
+
+  const ARC_WEAPONS = ["9mm PISTOL", "5.56mm INSAS Rifle", "5.56mm INSAS LMG", "7.62mm Sig 716", "7.62mm SLR", "40mm MGL", "AK-47"];
+  const COURSE_TYPES = ["Preliminary Marksmanship", "Annual Range Course", "Battle Inoculation", "Advanced Combat", "Refresher Course"];
+  const FIRING_POSITIONS = ["SU (Standing Unsupported)", "SS (Standing Supported)", "KU (Kneeling Unsupported)", "KS (Kneeling Supported)", "PU (Prone Unsupported)", "PS (Prone Supported)"];
+  const BEHAVIOURS = ["Grouping", "Zeroing", "Application", "Snap Shooting", "Moving Target"];
+  const ARC_AMMO_TYPES = ["BALL", "TRACER", "BLANK", "AP"];
+  const TARGETS_LIST = ["Fig 11", "Fig 12", "Fig 13", "Fig 14", "Zeroing Target 120 Cms", "Bull's Eye", "Chaung Target"];
+  const ILLUMINATION_TYPES = ["Flare", "Searchlight", "NVD", "Ambient"];
+
+  const addExercise = () => {
+    const newEx: ArcExercise = {
+      id: Date.now(), practiceType: practiceType || "New Exercise", position: firingPosition,
+      range: rangeMeters, target: selectedTarget, ammunition, groupSize, remarks, ammoType,
+    };
+    setExercises(prev => [...prev, newEx]);
+  };
+
+  const deleteExercise = () => {
+    if (selectedExerciseId) setExercises(prev => prev.filter(e => e.id !== selectedExerciseId));
+    setSelectedExerciseId(null);
+  };
+
+  return (
+    <div className="h-full flex flex-col p-4 gap-4">
+      <div className="flex gap-4 flex-1 min-h-0">
+        {/* Left: Main fields */}
+        <div className="flex-1 glass-tile rounded-2xl p-5 space-y-3 overflow-auto">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4">
+            <Wrench className="h-4 w-4 text-status-info" /> Exercise Configuration
+          </h3>
+          <div className="grid grid-cols-[180px_1fr] gap-y-2.5 gap-x-4 items-center">
+            <label className="text-xs font-medium text-muted-foreground">Select Weapon</label>
+            <Select value={weapon} onValueChange={setWeapon}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>{ARC_WEAPONS.map(w => <SelectItem key={w} value={w} className="text-xs">{w}</SelectItem>)}</SelectContent>
+            </Select>
+
+            <label className="text-xs font-medium text-muted-foreground">Select Range Course</label>
+            <div className="flex gap-2">
+              <Select value={rangeCourse} onValueChange={setRangeCourse}>
+                <SelectTrigger className="h-8 text-xs flex-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="9mm Pistol Range Course" className="text-xs">9mm Pistol Range Course</SelectItem>
+                  <SelectItem value="5.56mm Rifle Range Course" className="text-xs">5.56mm Rifle Range Course</SelectItem>
+                  <SelectItem value="7.62mm Range Course" className="text-xs">7.62mm Range Course</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" className="h-8 text-xs px-3">New</Button>
+            </div>
+
+            <label className="text-xs font-medium text-muted-foreground">Select Course Type</label>
+            <Select value={courseType} onValueChange={setCourseType}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>{COURSE_TYPES.map(c => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}</SelectContent>
+            </Select>
+
+            <label className="text-xs font-medium text-muted-foreground">Type of Practice</label>
+            <Input value={practiceType} onChange={e => setPracticeType(e.target.value)} className="h-8 text-xs" placeholder="Enter practice type" />
+
+            <label className="text-xs font-medium text-muted-foreground">Select Firing Position</label>
+            <Select value={firingPosition} onValueChange={setFiringPosition}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>{FIRING_POSITIONS.map(f => <SelectItem key={f} value={f} className="text-xs">{f}</SelectItem>)}</SelectContent>
+            </Select>
+
+            <label className="text-xs font-medium text-muted-foreground">Range (mtrs)</label>
+            <Input type="number" value={rangeMeters} onChange={e => setRangeMeters(parseInt(e.target.value) || 0)} className="h-8 text-xs w-32 font-mono" />
+
+            <label className="text-xs font-medium text-muted-foreground">Select Exercise Behaviour</label>
+            <Select value={exerciseBehaviour} onValueChange={setExerciseBehaviour}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>{BEHAVIOURS.map(b => <SelectItem key={b} value={b} className="text-xs">{b}</SelectItem>)}</SelectContent>
+            </Select>
+
+            <label className="text-xs font-medium text-muted-foreground">Ammunition</label>
+            <Input type="number" value={ammunition} onChange={e => setAmmunition(parseInt(e.target.value) || 0)} className="h-8 text-xs w-32 font-mono" />
+
+            <label className="text-xs font-medium text-muted-foreground">Select Ammunition Type</label>
+            <Select value={ammoType} onValueChange={setAmmoType}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>{ARC_AMMO_TYPES.map(a => <SelectItem key={a} value={a} className="text-xs">{a}</SelectItem>)}</SelectContent>
+            </Select>
+
+            <label className="text-xs font-medium text-muted-foreground">Select Target</label>
+            <Select value={selectedTarget} onValueChange={setSelectedTarget}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>{TARGETS_LIST.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Right: Settings panel */}
+        <div className="w-80 shrink-0 glass-tile rounded-2xl p-5 space-y-4 overflow-auto">
+          <div className="flex items-center gap-4 mb-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" checked={settingsMode === "advance"} onChange={() => setSettingsMode("advance")} className="accent-primary" />
+              <span className="text-xs font-medium text-foreground">Advance Settings</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" checked={settingsMode === "scoring"} onChange={() => setSettingsMode("scoring")} className="accent-primary" />
+              <span className="text-xs font-medium text-foreground">Scoring System</span>
+            </label>
+          </div>
+
+          {settingsMode === "scoring" && (
+            <div className="glass-tile rounded-xl p-4 space-y-3">
+              <h4 className="text-xs font-bold text-foreground border-b border-border/30 pb-2">Scoring System</h4>
+              <div className="flex items-center gap-3">
+                <label className="text-xs text-muted-foreground w-28">Group Size (cms)</label>
+                <Input type="number" value={groupSize} onChange={e => setGroupSize(parseInt(e.target.value) || 0)} className="h-7 text-xs w-20 font-mono" />
+              </div>
+            </div>
+          )}
+
+          {settingsMode === "advance" && (
+            <div className="glass-tile rounded-xl p-4 space-y-3">
+              <h4 className="text-xs font-bold text-foreground border-b border-border/30 pb-2">Advance Settings</h4>
+              <p className="text-xs text-muted-foreground">Advanced configuration options for this exercise.</p>
+            </div>
+          )}
+
+          <div className="glass-tile rounded-xl p-4 space-y-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox checked={illumination} onCheckedChange={(v) => setIllumination(!!v)} />
+              <span className="text-xs font-medium text-foreground">Illumination</span>
+            </label>
+            {illumination && (
+              <div className="flex items-center gap-3">
+                <label className="text-xs text-muted-foreground w-28">Illumination type</label>
+                <Select value={illuminationType} onValueChange={setIlluminationType}>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>{ILLUMINATION_TYPES.map(i => <SelectItem key={i} value={i} className="text-xs">{i}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <label className="text-xs text-muted-foreground w-28">Interval</label>
+              <Input type="number" value={intervalVal} onChange={e => setIntervalVal(Math.min(10, Math.max(1, parseInt(e.target.value) || 1)))} className="h-7 text-xs w-16 font-mono" />
+              <span className="text-[10px] text-muted-foreground">1-10 sec</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-xs text-muted-foreground w-28">Rounds</label>
+              <Input type="number" value={rounds} onChange={e => setRounds(Math.min(10, Math.max(1, parseInt(e.target.value) || 1)))} className="h-7 text-xs w-16 font-mono" />
+              <span className="text-[10px] text-muted-foreground">1-10</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-xs text-muted-foreground w-28">Range</label>
+              <Input type="number" value={rangeVal} onChange={e => setRangeVal(parseInt(e.target.value) || 0)} className="h-7 text-xs w-16 font-mono" />
+            </div>
+          </div>
+
+          <div className="glass-tile rounded-xl p-4">
+            <label className="text-xs font-medium text-foreground mb-2 block">Remarks</label>
+            <textarea value={remarks} onChange={e => setRemarks(e.target.value)} className="w-full h-16 rounded-lg border border-border/50 bg-background/50 px-3 py-2 text-xs resize-none focus:outline-none focus:ring-1 focus:ring-primary/50" />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom: Exercise table */}
+      <div className="glass-tile rounded-2xl flex flex-col min-h-[180px]">
+        <ScrollArea className="flex-1">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border/30">
+                <TableHead className="text-[10px] w-8"></TableHead>
+                <TableHead className="text-[10px]">Type of Practice</TableHead>
+                <TableHead className="text-[10px]">Position</TableHead>
+                <TableHead className="text-[10px]">Range (mtrs)</TableHead>
+                <TableHead className="text-[10px]">Type of Target</TableHead>
+                <TableHead className="text-[10px]">Ammunition</TableHead>
+                <TableHead className="text-[10px]">Group Size (cms)</TableHead>
+                <TableHead className="text-[10px]">Remarks</TableHead>
+                <TableHead className="text-[10px]">Ammo Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {exercises.map(ex => (
+                <TableRow key={ex.id} className={`cursor-pointer transition-colors ${selectedExerciseId === ex.id ? "bg-primary/10 border-primary/30" : "hover:bg-secondary/30"}`}
+                  onClick={() => setSelectedExerciseId(ex.id)}>
+                  <TableCell><Checkbox checked={selectedExerciseId === ex.id} /></TableCell>
+                  <TableCell className="text-xs">{ex.practiceType}</TableCell>
+                  <TableCell className="text-xs">{ex.position}</TableCell>
+                  <TableCell className="text-xs font-mono">{ex.range}</TableCell>
+                  <TableCell className="text-xs">{ex.target}</TableCell>
+                  <TableCell className="text-xs font-mono">{ex.ammunition}</TableCell>
+                  <TableCell className="text-xs font-mono">{ex.groupSize}</TableCell>
+                  <TableCell className="text-xs truncate max-w-[180px]">{ex.remarks}</TableCell>
+                  <TableCell className="text-xs">{ex.ammoType}</TableCell>
+                </TableRow>
+              ))}
+              {exercises.length === 0 && (
+                <TableRow><TableCell colSpan={9} className="text-center text-xs text-muted-foreground py-6">No exercises configured</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+        <div className="flex items-center justify-center gap-3 border-t border-border/30 px-4 py-3">
+          <Button onClick={addExercise} variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Plus className="h-3.5 w-3.5" /> Add Exercise
+          </Button>
+          <Button onClick={deleteExercise} variant="outline" size="sm" className="gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10">
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <Edit2 className="h-3.5 w-3.5" /> Update
+          </Button>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const TargetWeapon = () => (
   <div className="flex-1 flex items-center justify-center p-8">
