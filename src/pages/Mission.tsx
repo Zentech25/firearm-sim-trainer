@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, Plus, Trash2, Edit2, Check, X, ChevronRight, ChevronDown,
@@ -379,6 +380,7 @@ const ExerciseNode = ({
 
 // --- Main Mission Component ---
 const Mission = () => {
+  const navigate = useNavigate();
   // Active panel: "trainee" or "exercise"
   const [activePanel, setActivePanel] = useState<"trainee" | "exercise">("trainee");
 
@@ -517,7 +519,16 @@ const Mission = () => {
 
       <div className="relative z-10 flex h-screen flex-col">
         {/* Mode Switcher - Creative animated toggle */}
-        <div className="flex items-center justify-center gap-2 border-b border-border/50 bg-card/60 px-6 py-3 backdrop-blur-xl">
+        <div className="flex items-center gap-2 border-b border-border/50 bg-card/60 px-6 py-3 backdrop-blur-xl">
+          <motion.button
+            className="flex items-center gap-2 mr-4"
+            whileHover={{ scale: 1.05 }}
+            onClick={() => navigate("/dashboard")}
+          >
+            <Crosshair className="h-6 w-6 text-primary" />
+            <span className="font-mono text-lg font-bold tracking-[0.15em] text-foreground">IWTS</span>
+          </motion.button>
+          <div className="h-6 w-px bg-border mr-4" />
           <div className="relative flex rounded-xl border border-border/50 bg-muted/30 p-1">
             <motion.div
               className="absolute top-1 bottom-1 rounded-lg bg-primary/20 border border-primary/40"
