@@ -55,6 +55,12 @@ export default {
           glow: "hsl(var(--tactical-glow))",
           dark: "hsl(var(--tactical-dark))",
         },
+        status: {
+          online: "hsl(var(--status-online))",
+          warning: "hsl(var(--status-warning))",
+          danger: "hsl(var(--status-danger))",
+          info: "hsl(var(--status-info))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
