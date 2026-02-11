@@ -35,26 +35,17 @@ const LoginPage = () => {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background">
-      {/* Animated grid background */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div
-          className="h-full w-full"
-          style={{
-            backgroundImage:
-              "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
-      </div>
+      {/* HUD grid background */}
+      <div className="absolute inset-0 hud-grid" />
 
       {/* Animated radial glow */}
       <motion.div
         className="absolute inset-0"
         animate={{
           background: [
-            "radial-gradient(600px circle at 50% 50%, hsl(var(--primary) / 0.06), transparent 60%)",
-            "radial-gradient(800px circle at 50% 50%, hsl(var(--primary) / 0.1), transparent 60%)",
-            "radial-gradient(600px circle at 50% 50%, hsl(var(--primary) / 0.06), transparent 60%)",
+            "radial-gradient(600px circle at 50% 50%, hsl(160 70% 45% / 0.04), transparent 60%)",
+            "radial-gradient(800px circle at 50% 50%, hsl(160 70% 45% / 0.07), transparent 60%)",
+            "radial-gradient(600px circle at 50% 50%, hsl(160 70% 45% / 0.04), transparent 60%)",
           ],
         }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -121,7 +112,7 @@ const LoginPage = () => {
         {/* Login form */}
         <motion.form
           onSubmit={handleLogin}
-          className="space-y-5 rounded-2xl border border-border/50 bg-card/80 p-8 backdrop-blur-xl"
+          className="space-y-5 glass-tile-elevated rounded-2xl p-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}

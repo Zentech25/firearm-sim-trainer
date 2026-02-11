@@ -565,17 +565,12 @@ const Mission = () => {
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
-      {/* Ambient grid */}
-      <div className="absolute inset-0 opacity-[0.015]">
-        <div className="h-full w-full" style={{
-          backgroundImage: "linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }} />
-      </div>
+      {/* HUD grid */}
+      <div className="absolute inset-0 hud-grid" />
 
       <div className="relative z-10 flex h-screen flex-col">
-        {/* Mode Switcher - Creative animated toggle */}
-        <div className="flex items-center gap-2 border-b border-border/50 bg-card/60 px-6 py-3 backdrop-blur-xl">
+        {/* Mode Switcher */}
+        <div className="flex items-center gap-2 glass-nav px-6 py-3">
           <motion.button
             className="flex items-center gap-2 mr-4"
             whileHover={{ scale: 1.05 }}
@@ -630,7 +625,7 @@ const Mission = () => {
                 transition={{ duration: 0.25 }}
               >
                 {/* Left: ORBAT Tree */}
-                <Card className="w-72 shrink-0 border-border/50 bg-card/80 backdrop-blur-sm flex flex-col">
+                <div className="w-72 shrink-0 glass-tile rounded-2xl flex flex-col">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-base">
                       <Building2 className="h-4 w-4 text-primary" />
@@ -649,12 +644,12 @@ const Mission = () => {
                       />
                     </ScrollArea>
                   </CardContent>
-                </Card>
+                </div>
 
                 {/* Right: Form + Table */}
                 <div className="flex-1 flex flex-col gap-4 overflow-hidden">
                   {/* Trainee Form */}
-                  <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+                  <div className="glass-tile rounded-2xl">
                     <CardHeader className="pb-2">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <UserPlus className="h-4 w-4 text-primary" />
@@ -746,10 +741,10 @@ const Mission = () => {
                         </Button>
                       </div>
                     </CardContent>
-                  </Card>
+                  </div>
 
                   {/* Trainee Table */}
-                  <Card className="flex-1 border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden flex flex-col">
+                  <div className="flex-1 glass-tile rounded-2xl overflow-hidden flex flex-col">
                     <CardHeader className="pb-2">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Users className="h-4 w-4 text-primary" />
@@ -861,7 +856,7 @@ const Mission = () => {
                         </div>
                       )}
                     </CardContent>
-                  </Card>
+                  </div>
                 </div>
               </motion.div>
             ) : (
@@ -874,7 +869,7 @@ const Mission = () => {
                 transition={{ duration: 0.25 }}
               >
                 {/* Exercise Tree */}
-                <Card className="w-80 shrink-0 border-border/50 bg-card/80 backdrop-blur-sm flex flex-col">
+                <div className="w-80 shrink-0 glass-tile rounded-2xl flex flex-col">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-sm">
                       <Layers className="h-4 w-4 text-primary" />
@@ -888,7 +883,7 @@ const Mission = () => {
                       ))}
                     </ScrollArea>
                   </CardContent>
-                </Card>
+                </div>
 
                 {/* Exercise Details */}
                 <div className="flex-1 flex items-center justify-center">
@@ -901,7 +896,7 @@ const Mission = () => {
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="text-center"
                       >
-                        <Card className="border-border/50 bg-card/80 backdrop-blur-sm max-w-md">
+                        <div className="glass-tile-elevated rounded-2xl max-w-md">
                           <CardContent className="p-8">
                             <motion.div
                               className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10"
@@ -918,7 +913,7 @@ const Mission = () => {
                               <Target className="h-4 w-4" /> Start Exercise
                             </Button>
                           </CardContent>
-                        </Card>
+                        </div>
                       </motion.div>
                     ) : (
                       <motion.div
