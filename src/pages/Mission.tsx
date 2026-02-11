@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, Plus, Trash2, Edit2, Check, X, ChevronRight, ChevronDown,
   Target, Clock, Move, RotateCcw, UserPlus, Crosshair, Folder, FolderOpen,
-  Shield, Anchor, Plane, Building2, Layers, Camera, ImagePlus,
+  Shield, Anchor, Plane, Building2, Layers, Camera, ImagePlus, ChevronLeft,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -436,6 +436,8 @@ const Mission = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   let snoCounter = trainees.length > 0 ? Math.max(...trainees.map(t => t.sno)) + 1 : 1;
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 5;
 
   // Exercise state
   const [selectedExercise, setSelectedExercise] = useState("");
@@ -473,6 +475,9 @@ const Mission = () => {
   }, [selectedOrbatId]);
 
   const filteredTrainees = trainees.filter(traineeMatchesOrbat);
+  const totalPages = Math.max(1, Math.ceil(filteredTrainees.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedTrainees = filteredTrainees.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const addNodeToOrbat = useCallback((parentId: string) => {
     setOrbat(prev => {
@@ -627,7 +632,7 @@ const Mission = () => {
                 {/* Left: ORBAT Tree */}
                 <Card className="w-72 shrink-0 border-border/50 bg-card/80 backdrop-blur-sm flex flex-col">
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-sm">
+                    <CardTitle className="flex items-center gap-2 text-base">
                       <Building2 className="h-4 w-4 text-primary" />
                       ORBAT Structure
                     </CardTitle>
@@ -651,10 +656,10 @@ const Mission = () => {
                   {/* Trainee Form */}
                   <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
                     <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-sm">
+                      <CardTitle className="flex items-center gap-2 text-base">
                         <UserPlus className="h-4 w-4 text-primary" />
                         Add Trainee
-                        <span className="ml-auto text-[10px] text-muted-foreground font-mono">
+                        <span className="ml-auto text-xs text-muted-foreground font-mono">
                           ORBAT: {getNodeLabel(orbat, selectedOrbatId) || "Select a node"}
                         </span>
                       </CardTitle>
@@ -663,7 +668,7 @@ const Mission = () => {
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Photo Upload */}
                         <div className="space-y-1 row-span-2">
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Photo</label>
+                          <label className="text-xs uppercase tracking-wider text-muted-foreground font-mono">Photo</label>
                           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoFile} />
                           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoFile} />
                           <div className="flex flex-col items-center gap-2">
@@ -687,50 +692,50 @@ const Mission = () => {
                               )}
                             </motion.div>
                             <div className="flex gap-1">
-                              <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={() => fileInputRef.current?.click()}>
+                              <Button variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => fileInputRef.current?.click()}>
                                 <ImagePlus className="h-3 w-3" /> Browse
                               </Button>
-                              <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] gap-1" onClick={() => cameraInputRef.current?.click()}>
+                              <Button variant="outline" size="sm" className="h-7 px-2 text-xs gap-1" onClick={() => cameraInputRef.current?.click()}>
                                 <Camera className="h-3 w-3" /> Camera
                               </Button>
                             </div>
                             {traineePhoto && (
-                              <Button variant="ghost" size="sm" className="h-5 px-2 text-[9px] text-destructive" onClick={() => setTraineePhoto(undefined)}>
+                              <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-destructive" onClick={() => setTraineePhoto(undefined)}>
                                 Remove
                               </Button>
                             )}
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Trainee Number</label>
-                          <Input value={traineeNumber} onChange={(e) => setTraineeNumber(e.target.value)} placeholder="Enter number" className="h-8 text-sm" />
+                          <label className="text-xs uppercase tracking-wider text-muted-foreground font-mono">Trainee Number</label>
+                          <Input value={traineeNumber} onChange={(e) => setTraineeNumber(e.target.value)} placeholder="Enter number" className="h-9 text-sm" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Rank</label>
+                          <label className="text-xs uppercase tracking-wider text-muted-foreground font-mono">Rank</label>
                           <Select value={traineeRank} onValueChange={setTraineeRank}>
-                            <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select rank" /></SelectTrigger>
+                            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Select rank" /></SelectTrigger>
                             <SelectContent>{RANKS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Shoulder Badge</label>
-                          {traineeRank ? <RankBadge rank={traineeRank} /> : <div className="h-10 rounded-lg border border-dashed border-border/50 flex items-center justify-center text-[10px] text-muted-foreground">Select rank</div>}
+                          <label className="text-xs uppercase tracking-wider text-muted-foreground font-mono">Shoulder Badge</label>
+                          {traineeRank ? <RankBadge rank={traineeRank} /> : <div className="h-10 rounded-lg border border-dashed border-border/50 flex items-center justify-center text-xs text-muted-foreground">Select rank</div>}
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Trainee Name</label>
-                          <Input value={traineeName} onChange={(e) => setTraineeName(e.target.value)} placeholder="Enter name" className="h-8 text-sm" />
+                          <label className="text-xs uppercase tracking-wider text-muted-foreground font-mono">Trainee Name</label>
+                          <Input value={traineeName} onChange={(e) => setTraineeName(e.target.value)} placeholder="Enter name" className="h-9 text-sm" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Firer Master Hand</label>
+                          <label className="text-xs uppercase tracking-wider text-muted-foreground font-mono">Firer Master Hand</label>
                           <Select value={firerHand} onValueChange={setFirerHand}>
-                            <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                             <SelectContent>{FIRER_HANDS.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Weapon</label>
+                          <label className="text-xs uppercase tracking-wider text-muted-foreground font-mono">Weapon</label>
                           <Select value={weapon} onValueChange={setWeapon}>
-                            <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                             <SelectContent>{WEAPONS.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}</SelectContent>
                           </Select>
                         </div>
@@ -746,33 +751,33 @@ const Mission = () => {
                   {/* Trainee Table */}
                   <Card className="flex-1 border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden flex flex-col">
                     <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-sm">
+                      <CardTitle className="flex items-center gap-2 text-base">
                         <Users className="h-4 w-4 text-primary" />
                         Trainees
-                        <span className="ml-2 rounded-md bg-primary/10 px-2 py-0.5 font-mono text-[10px] text-primary">
+                        <span className="ml-2 rounded-md bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
                           {filteredTrainees.length}
                         </span>
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-1 overflow-hidden p-0">
-                      <ScrollArea className="h-full">
+                    <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
+                      <ScrollArea className="flex-1">
                         <Table>
                           <TableHeader>
                             <TableRow className="border-border/30">
-                              <TableHead className="text-[10px] font-mono w-12">SNo</TableHead>
-                              <TableHead className="text-[10px] font-mono w-12">Photo</TableHead>
-                              <TableHead className="text-[10px] font-mono">Number</TableHead>
-                              <TableHead className="text-[10px] font-mono">Rank</TableHead>
-                              <TableHead className="text-[10px] font-mono">Name</TableHead>
-                              <TableHead className="text-[10px] font-mono">Hand</TableHead>
-                              <TableHead className="text-[10px] font-mono">Weapon</TableHead>
-                              <TableHead className="text-[10px] font-mono">ORBAT</TableHead>
-                              <TableHead className="text-[10px] font-mono w-12"></TableHead>
+                              <TableHead className="text-xs font-mono w-12">SNo</TableHead>
+                              <TableHead className="text-xs font-mono w-12">Photo</TableHead>
+                              <TableHead className="text-xs font-mono">Number</TableHead>
+                              <TableHead className="text-xs font-mono">Rank</TableHead>
+                              <TableHead className="text-xs font-mono">Name</TableHead>
+                              <TableHead className="text-xs font-mono">Hand</TableHead>
+                              <TableHead className="text-xs font-mono">Weapon</TableHead>
+                              <TableHead className="text-xs font-mono">ORBAT</TableHead>
+                              <TableHead className="text-xs font-mono w-12"></TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             <AnimatePresence>
-                              {filteredTrainees.map((t, i) => (
+                              {paginatedTrainees.map((t, i) => (
                                 <motion.tr
                                   key={t.id}
                                   className="border-border/20 hover:bg-muted/30 cursor-pointer"
@@ -781,26 +786,26 @@ const Mission = () => {
                                   exit={{ opacity: 0, x: -20 }}
                                   transition={{ delay: i * 0.03 }}
                                 >
-                                  <TableCell className="font-mono text-xs text-muted-foreground">{t.sno}</TableCell>
+                                  <TableCell className="font-mono text-sm text-muted-foreground">{t.sno}</TableCell>
                                   <TableCell>
-                                    <Avatar className="h-7 w-7">
+                                    <Avatar className="h-8 w-8">
                                       <AvatarImage src={t.photo} />
-                                      <AvatarFallback className="text-[9px] bg-muted/50">{t.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                                      <AvatarFallback className="text-[10px] bg-muted/50">{t.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
                                     </Avatar>
                                   </TableCell>
-                                  <TableCell className="font-mono text-xs">{t.traineeNumber}</TableCell>
-                                  <TableCell className="text-xs">{t.rank}</TableCell>
-                                  <TableCell className="text-xs font-medium">{t.name}</TableCell>
-                                  <TableCell className="text-xs">{t.firerMasterHand}</TableCell>
-                                  <TableCell className="text-xs">{t.weapon}</TableCell>
-                                  <TableCell className="text-xs text-muted-foreground truncate max-w-[120px]">{t.orbatLabel}</TableCell>
+                                  <TableCell className="font-mono text-sm">{t.traineeNumber}</TableCell>
+                                  <TableCell className="text-sm">{t.rank}</TableCell>
+                                  <TableCell className="text-sm font-medium">{t.name}</TableCell>
+                                  <TableCell className="text-sm">{t.firerMasterHand}</TableCell>
+                                  <TableCell className="text-sm">{t.weapon}</TableCell>
+                                  <TableCell className="text-sm text-muted-foreground truncate max-w-[150px]">{t.orbatLabel}</TableCell>
                                   <TableCell>
                                     <motion.button
                                       onClick={() => deleteTrainee(t.id)}
                                       className="p-1 rounded hover:bg-destructive/20"
                                       whileTap={{ scale: 0.9 }}
                                     >
-                                      <Trash2 className="h-3 w-3 text-destructive" />
+                                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                     </motion.button>
                                   </TableCell>
                                 </motion.tr>
@@ -808,7 +813,7 @@ const Mission = () => {
                             </AnimatePresence>
                             {filteredTrainees.length === 0 && (
                               <TableRow>
-                                <TableCell colSpan={9} className="text-center text-xs text-muted-foreground py-8">
+                                <TableCell colSpan={9} className="text-center text-sm text-muted-foreground py-8">
                                   No trainees in selected ORBAT node
                                 </TableCell>
                               </TableRow>
@@ -816,6 +821,45 @@ const Mission = () => {
                           </TableBody>
                         </Table>
                       </ScrollArea>
+                      {/* Pagination */}
+                      {totalPages > 1 && (
+                        <div className="flex items-center justify-between border-t border-border/30 px-4 py-2">
+                          <span className="text-xs text-muted-foreground">
+                            Page {safePage} of {totalPages} · {filteredTrainees.length} trainees
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                              disabled={safePage <= 1}
+                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                              <Button
+                                key={page}
+                                variant={page === safePage ? "default" : "ghost"}
+                                size="sm"
+                                className="h-7 w-7 p-0 text-xs"
+                                onClick={() => setCurrentPage(page)}
+                              >
+                                {page}
+                              </Button>
+                            ))}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                              disabled={safePage >= totalPages}
+                              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
