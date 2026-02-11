@@ -521,19 +521,22 @@ const Configuration = () => {
     <div className="relative min-h-screen bg-background overflow-hidden">
       <div className="absolute inset-0 hud-grid" />
       <div className="relative z-10 flex h-screen flex-col">
-        {/* Nav Bar */}
-        <div className="flex items-center gap-2 glass-nav px-6 py-3">
-          <motion.button className="flex items-center gap-2 mr-4" whileHover={{ scale: 1.05 }} onClick={() => navigate("/dashboard")}>
-            <Crosshair className="h-6 w-6 text-primary" />
-            <span className="font-mono text-lg font-bold tracking-[0.15em] text-foreground">IWTS</span>
-          </motion.button>
-          <div className="h-6 w-px bg-border mr-2" />
-          <nav className="flex items-center gap-1 mr-4">
-            <motion.button onClick={() => navigate("/mission")} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Mission</motion.button>
-            <motion.button className="rounded-lg px-3 py-1.5 text-sm text-primary bg-primary/10 border border-primary/20 font-semibold" whileTap={{ scale: 0.95 }}>Configuration</motion.button>
-          </nav>
-          <div className="h-6 w-px bg-border mr-2" />
-          {/* Sub-tabs */}
+        {/* Main Nav */}
+        <div className="glass-nav px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <motion.button className="flex items-center gap-2" whileHover={{ scale: 1.05 }} onClick={() => navigate("/dashboard")}>
+              <Crosshair className="h-6 w-6 text-primary" />
+              <span className="font-mono text-lg font-bold tracking-[0.15em] text-foreground">IWTS</span>
+            </motion.button>
+            <div className="h-5 w-px bg-border/50" />
+            <nav className="flex items-center gap-1">
+              <motion.button onClick={() => navigate("/mission")} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Mission</motion.button>
+              <motion.button className="rounded-lg px-3 py-1.5 text-sm text-primary bg-primary/10 border border-primary/20 font-semibold" whileTap={{ scale: 0.95 }}>Configuration</motion.button>
+            </nav>
+          </div>
+        </div>
+        {/* Sub-tabs */}
+        <div className="px-6 py-2 border-b border-border/30 bg-muted/20">
           <div className="flex items-center gap-1">
             {tabs.map((tab) => (
               <motion.button

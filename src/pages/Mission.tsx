@@ -275,20 +275,23 @@ const Mission = () => {
     <div className="relative min-h-screen bg-background overflow-hidden">
       <div className="absolute inset-0 hud-grid" />
       <div className="relative z-10 flex h-screen flex-col">
-        {/* Nav */}
-        <div className="flex items-center gap-2 glass-nav px-6 py-3">
-          <motion.button className="flex items-center gap-2 mr-4" whileHover={{ scale: 1.05 }} onClick={() => navigate("/dashboard")}>
-            <Crosshair className="h-6 w-6 text-primary" />
-            <span className="font-mono text-lg font-bold tracking-[0.15em] text-foreground">IWTS</span>
-          </motion.button>
-          <div className="h-6 w-px bg-border mr-2" />
-          <nav className="flex items-center gap-1 mr-4">
-            <motion.button className="rounded-lg px-3 py-1.5 text-sm text-primary bg-primary/10 border border-primary/20 font-semibold" whileTap={{ scale: 0.95 }}>Mission</motion.button>
-            <motion.button onClick={() => navigate("/configuration")} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Configuration</motion.button>
-          </nav>
-          <div className="h-6 w-px bg-border mr-2" />
-          {/* Sub-tabs */}
-          <div className="relative flex rounded-xl border border-border/50 bg-muted/30 p-1">
+        {/* Main Nav */}
+        <div className="glass-nav px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <motion.button className="flex items-center gap-2" whileHover={{ scale: 1.05 }} onClick={() => navigate("/dashboard")}>
+              <Crosshair className="h-6 w-6 text-primary" />
+              <span className="font-mono text-lg font-bold tracking-[0.15em] text-foreground">IWTS</span>
+            </motion.button>
+            <div className="h-5 w-px bg-border/50" />
+            <nav className="flex items-center gap-1">
+              <motion.button className="rounded-lg px-3 py-1.5 text-sm text-primary bg-primary/10 border border-primary/20 font-semibold" whileTap={{ scale: 0.95 }}>Mission</motion.button>
+              <motion.button onClick={() => navigate("/configuration")} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Configuration</motion.button>
+            </nav>
+          </div>
+        </div>
+        {/* Sub-tabs */}
+        <div className="px-6 py-2 border-b border-border/30 bg-muted/20">
+          <div className="relative flex rounded-xl border border-border/50 bg-muted/30 p-1 w-fit">
             <motion.div className="absolute top-1 bottom-1 rounded-lg bg-primary/20 border border-primary/40"
               animate={{ left: activePanel === "trainee" ? "4px" : "50%", width: "calc(50% - 4px)" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }} />
