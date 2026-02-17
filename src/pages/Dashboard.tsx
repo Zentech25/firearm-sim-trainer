@@ -6,6 +6,7 @@ import {
   Play, Settings, LogOut, ChevronRight, Flame, Zap,
   Star, TrendingUp, Clock, MapPin, Shield, Eye, BarChart3,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -140,6 +141,7 @@ const Dashboard = () => {
           </nav>
         </div>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <motion.div 
             className="flex items-center gap-2 rounded-lg glass-tile px-3 py-1.5"
             animate={{ borderColor: ["hsl(145 65% 48% / 0.1)", "hsl(145 65% 48% / 0.3)", "hsl(145 65% 48% / 0.1)"] }}

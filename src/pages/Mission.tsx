@@ -7,6 +7,7 @@ import {
   Shield, Anchor, Plane, Building2, Layers, ChevronLeft, Search,
   ArrowDown, ArrowUp, X,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -288,6 +289,7 @@ const Mission = () => {
               <motion.button onClick={() => navigate("/configuration")} className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Configuration</motion.button>
             </nav>
           </div>
+          <ThemeToggle />
         </div>
         {/* Sub-tabs */}
         <div className="px-6 py-2 border-b border-border/30 bg-muted/20">
