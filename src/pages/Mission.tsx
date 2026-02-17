@@ -147,16 +147,16 @@ const OrbatTreeNode = ({
   return (
     <div>
       <motion.div
-        className={`group flex items-center gap-1 rounded-md px-2 py-1 cursor-pointer transition-all text-sm ${
+        className={`group flex items-center gap-1.5 rounded-md px-2 py-1.5 cursor-pointer transition-all text-sm ${
           isSelected ? "bg-primary/15 text-primary border border-primary/30" : "hover:bg-muted/60 text-foreground border border-transparent"
         }`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={() => { onSelect(node.id); if (hasChildren) setExpanded(!expanded); }}
         whileHover={{ x: 2 }}
       >
-        {hasChildren ? (expanded ? <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />) : <div className="w-3" />}
-        {node.type === "branch" ? <BranchIcon className="h-3.5 w-3.5 shrink-0 text-primary" /> : expanded ? <FolderOpen className="h-3.5 w-3.5 shrink-0 text-accent" /> : <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-        <span className="truncate flex-1 text-xs font-medium">{node.name}</span>
+        {hasChildren ? (expanded ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />) : <div className="w-3.5" />}
+        {node.type === "branch" ? <BranchIcon className="h-4 w-4 shrink-0 text-primary" /> : expanded ? <FolderOpen className="h-4 w-4 shrink-0 text-accent" /> : <Folder className="h-4 w-4 shrink-0 text-muted-foreground" />}
+        <span className="truncate flex-1 text-sm font-medium">{node.name}</span>
       </motion.div>
       <AnimatePresence>
         {expanded && node.children.length > 0 && (
@@ -312,14 +312,14 @@ const Mission = () => {
         <div className="flex-1 overflow-hidden">
           <AnimatePresence mode="wait">
             {activePanel === "trainee" ? (
-              <motion.div key="trainee" className="h-full flex flex-col gap-3 p-4" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25 }}>
+              <motion.div key="trainee" className="h-full flex flex-col gap-4 p-5" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.25 }}>
                 {/* Top section: ORBAT + Trainee list */}
-                <div className="flex gap-3 flex-1 min-h-0">
+                <div className="flex gap-4 flex-1 min-h-0">
                   {/* ORBAT Tree */}
-                  <div className="w-64 shrink-0 glass-tile rounded-2xl flex flex-col">
-                    <CardHeader className="pb-2 pt-3 px-3">
-                      <CardTitle className="flex items-center gap-2 text-sm">
-                        <Building2 className="h-4 w-4 text-status-info" />
+                  <div className="w-72 shrink-0 glass-tile rounded-2xl flex flex-col">
+                    <CardHeader className="pb-2 pt-4 px-4">
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Building2 className="h-5 w-5 text-status-info" />
                         Organizations
                       </CardTitle>
                     </CardHeader>
