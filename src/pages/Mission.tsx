@@ -316,7 +316,7 @@ const Mission = () => {
                 {/* Top section: ORBAT + Trainee list */}
                 <div className="flex gap-4 flex-1 min-h-0">
                   {/* ORBAT Tree */}
-                  <div className="w-72 shrink-0 glass-tile rounded-2xl flex flex-col">
+                  <div className="w-72 shrink-0 glass-tile rounded-2xl flex flex-col gradient-border">
                     <CardHeader className="pb-2 pt-4 px-4">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Building2 className="h-5 w-5 text-status-info" />
@@ -331,7 +331,7 @@ const Mission = () => {
                   </div>
 
                   {/* Trainee Selection Table */}
-                  <div className="flex-1 glass-tile rounded-2xl flex flex-col min-h-0">
+                  <div className="flex-1 glass-tile rounded-2xl flex flex-col min-h-0 shimmer-hover">
                     <CardHeader className="pb-2 pt-3 px-4">
                       <div className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-sm">
@@ -408,7 +408,7 @@ const Mission = () => {
                 </div>
 
                 {/* Lane Assignment Table */}
-                <div className="glass-tile rounded-2xl flex flex-col" style={{ minHeight: "220px", maxHeight: "320px" }}>
+                <div className="glass-tile rounded-2xl flex flex-col gradient-border" style={{ minHeight: "220px", maxHeight: "320px" }}>
                   <CardHeader className="pb-2 pt-3 px-4">
                     <CardTitle className="flex items-center gap-2 text-sm">
                       <Target className="h-4 w-4 text-status-online" />
@@ -484,7 +484,7 @@ const Mission = () => {
               </motion.div>
             ) : (
               <motion.div key="exercise" className="h-full flex gap-4 p-4" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.25 }}>
-                <div className="w-80 shrink-0 glass-tile rounded-2xl flex flex-col">
+                <div className="w-80 shrink-0 glass-tile rounded-2xl flex flex-col gradient-border">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-sm">
                       <Layers className="h-4 w-4 text-primary" />

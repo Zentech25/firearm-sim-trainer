@@ -38,18 +38,28 @@ const LoginPage = () => {
       {/* HUD grid background */}
       <div className="absolute inset-0 hud-grid" />
 
-      {/* Animated radial glow */}
+      {/* Animated radial glow - dual colors */}
       <motion.div
         className="absolute inset-0"
         animate={{
           background: [
-            "radial-gradient(600px circle at 50% 50%, hsl(160 70% 45% / 0.04), transparent 60%)",
-            "radial-gradient(800px circle at 50% 50%, hsl(160 70% 45% / 0.07), transparent 60%)",
-            "radial-gradient(600px circle at 50% 50%, hsl(160 70% 45% / 0.04), transparent 60%)",
+            "radial-gradient(600px circle at 30% 40%, hsl(265 75% 55% / 0.06), transparent 60%), radial-gradient(400px circle at 70% 60%, hsl(210 75% 55% / 0.04), transparent 60%)",
+            "radial-gradient(800px circle at 50% 50%, hsl(265 75% 55% / 0.08), transparent 60%), radial-gradient(500px circle at 30% 70%, hsl(145 65% 48% / 0.04), transparent 60%)",
+            "radial-gradient(600px circle at 70% 30%, hsl(210 75% 55% / 0.06), transparent 60%), radial-gradient(400px circle at 40% 60%, hsl(265 75% 55% / 0.04), transparent 60%)",
+            "radial-gradient(600px circle at 30% 40%, hsl(265 75% 55% / 0.06), transparent 60%), radial-gradient(400px circle at 70% 60%, hsl(210 75% 55% / 0.04), transparent 60%)",
           ],
         }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
+
+      {/* Scan line */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent"
+          animate={{ y: ["-10%", "110vh"] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
 
       {/* Floating particles */}
       {Array.from({ length: 20 }).map((_, i) => (
@@ -92,10 +102,20 @@ const LoginPage = () => {
             whileHover={{ scale: 1.1, rotate: 90 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <div className="absolute inset-0 rounded-2xl border border-primary/20 bg-primary/5" />
+            <motion.div 
+              className="absolute inset-0 rounded-2xl border border-primary/20 bg-primary/5"
+              animate={{ 
+                boxShadow: [
+                  "0 0 20px hsl(265 75% 55% / 0.1)",
+                  "0 0 40px hsl(265 75% 55% / 0.25)",
+                  "0 0 20px hsl(265 75% 55% / 0.1)",
+                ]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
             <Crosshair className="relative h-10 w-10 text-primary" />
           </motion.div>
-          <h1 className="font-mono text-4xl font-bold tracking-[0.2em] text-foreground">
+          <h1 className="font-mono text-4xl font-bold tracking-[0.2em] text-gradient">
             IWTS
           </h1>
           <motion.div
@@ -112,7 +132,7 @@ const LoginPage = () => {
         {/* Login form */}
         <motion.form
           onSubmit={handleLogin}
-          className="space-y-5 glass-tile-elevated rounded-2xl p-8"
+          className="space-y-5 glass-tile-elevated rounded-2xl p-8 gradient-border"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -279,8 +299,8 @@ const LoginPage = () => {
             <motion.button
               type="submit"
               disabled={isLoggingIn}
-              className="relative flex-1 overflow-hidden rounded-xl bg-primary px-6 py-3.5 text-base font-bold uppercase tracking-wider text-primary-foreground disabled:opacity-60"
-              whileHover={{ scale: 1.02 }}
+              className="relative flex-1 overflow-hidden rounded-xl bg-primary px-6 py-3.5 text-base font-bold uppercase tracking-wider text-primary-foreground disabled:opacity-60 shimmer-hover"
+              whileHover={{ scale: 1.02, boxShadow: "0 0 30px hsl(265 75% 55% / 0.3)" }}
               whileTap={{ scale: 0.98 }}
             >
               <AnimatePresence mode="wait">
