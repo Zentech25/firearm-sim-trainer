@@ -7,6 +7,7 @@ import {
   Shield, Anchor, Plane, Building2, Camera, ImagePlus,
   Wrench, Target,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -761,6 +762,7 @@ const Configuration = () => {
               <motion.button className="rounded-lg px-3 py-1.5 text-sm text-primary bg-primary/10 border border-primary/20 font-semibold" whileTap={{ scale: 0.95 }}>Configuration</motion.button>
             </nav>
           </div>
+          <ThemeToggle />
         </div>
         {/* Sub-tabs */}
         <div className="px-6 py-2 border-b border-border/30 bg-muted/20">
