@@ -320,7 +320,7 @@ const TraineeCreation = () => {
   return (
     <div className="h-full flex gap-4 p-5">
       {/* Left: ORBAT Tree */}
-      <div className="w-72 shrink-0 glass-tile rounded-2xl flex flex-col">
+      <div className="w-72 shrink-0 glass-tile rounded-2xl flex flex-col gradient-border">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
             <Building2 className="h-4 w-4 text-status-info" />
@@ -337,7 +337,7 @@ const TraineeCreation = () => {
       {/* Right: Form + Table */}
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
         {/* Trainee Form */}
-        <div className="glass-tile rounded-2xl">
+        <div className="glass-tile rounded-2xl shimmer-hover">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <UserPlus className="h-4 w-4 text-status-warning" />
@@ -409,7 +409,7 @@ const TraineeCreation = () => {
         </div>
 
         {/* Trainee Table */}
-        <div className="flex-1 glass-tile rounded-2xl overflow-hidden flex flex-col">
+        <div className="flex-1 glass-tile rounded-2xl overflow-hidden flex flex-col gradient-border">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <Users className="h-4 w-4 text-status-info" />
@@ -534,7 +534,7 @@ const ArcTool = () => {
     <div className="h-full flex flex-col p-4 gap-4">
       <div className="flex gap-4 flex-1 min-h-0">
         {/* Left: Main fields */}
-        <div className="flex-1 glass-tile rounded-2xl p-5 space-y-3 overflow-auto">
+        <div className="flex-1 glass-tile rounded-2xl p-5 space-y-3 overflow-auto gradient-border">
           <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4">
             <Wrench className="h-4 w-4 text-status-info" /> Exercise Configuration
           </h3>
@@ -600,7 +600,7 @@ const ArcTool = () => {
         </div>
 
         {/* Right: Settings panel */}
-        <div className="w-80 shrink-0 glass-tile rounded-2xl p-5 space-y-4 overflow-auto">
+        <div className="w-80 shrink-0 glass-tile rounded-2xl p-5 space-y-4 overflow-auto shimmer-hover">
           <div className="flex items-center gap-4 mb-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="radio" checked={settingsMode === "advance"} onChange={() => setSettingsMode("advance")} className="accent-primary" />
@@ -667,7 +667,7 @@ const ArcTool = () => {
       </div>
 
       {/* Bottom: Exercise table */}
-      <div className="glass-tile rounded-2xl flex flex-col min-h-[180px]">
+      <div className="glass-tile rounded-2xl flex flex-col min-h-[180px] gradient-border">
         <ScrollArea className="flex-1">
           <Table>
             <TableHeader>
