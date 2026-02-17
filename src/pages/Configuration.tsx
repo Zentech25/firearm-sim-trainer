@@ -180,15 +180,15 @@ const OrbatTreeNode = ({
   return (
     <div>
       <motion.div
-        className={`group flex items-center gap-1 rounded-md px-2 py-1 cursor-pointer transition-all text-sm ${
+        className={`group flex items-center gap-1.5 rounded-md px-2 py-1.5 cursor-pointer transition-all text-sm ${
           isSelected ? "bg-primary/15 text-primary border border-primary/30" : "hover:bg-muted/60 text-foreground border border-transparent"
         }`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={() => { onSelect(node.id); if (hasChildren) setExpanded(!expanded); }}
         whileHover={{ x: 2 }}
       >
-        {hasChildren ? (expanded ? <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />) : <div className="w-3" />}
-        {node.type === "branch" ? <BranchIcon className="h-3.5 w-3.5 shrink-0 text-primary" /> : expanded ? <FolderOpen className="h-3.5 w-3.5 shrink-0 text-accent" /> : <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+        {hasChildren ? (expanded ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />) : <div className="w-3.5" />}
+        {node.type === "branch" ? <BranchIcon className="h-4 w-4 shrink-0 text-primary" /> : expanded ? <FolderOpen className="h-4 w-4 shrink-0 text-accent" /> : <Folder className="h-4 w-4 shrink-0 text-muted-foreground" />}
         {editing ? (
           <div className="flex items-center gap-1 flex-1">
             <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="h-5 text-xs px-1 py-0" autoFocus
@@ -198,7 +198,7 @@ const OrbatTreeNode = ({
             <X className="h-3 w-3 text-destructive cursor-pointer" onClick={(e) => { e.stopPropagation(); setEditing(false); }} />
           </div>
         ) : (
-          <span className="truncate flex-1 text-xs font-medium">{node.name}</span>
+          <span className="truncate flex-1 text-sm font-medium">{node.name}</span>
         )}
         <div className="hidden group-hover:flex items-center gap-0.5 ml-auto">
           {canAdd && <motion.button className="p-0.5 rounded hover:bg-primary/20" onClick={(e) => { e.stopPropagation(); onAdd(node.id); }} whileTap={{ scale: 0.9 }}><Plus className="h-3 w-3 text-primary" /></motion.button>}
@@ -318,7 +318,7 @@ const TraineeCreation = () => {
   const deleteTrainee = (id: string) => setTrainees(prev => prev.filter(t => t.id !== id));
 
   return (
-    <div className="h-full flex gap-4 p-4">
+    <div className="h-full flex gap-4 p-5">
       {/* Left: ORBAT Tree */}
       <div className="w-72 shrink-0 glass-tile rounded-2xl flex flex-col">
         <CardHeader className="pb-2">
