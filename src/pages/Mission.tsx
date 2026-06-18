@@ -74,7 +74,21 @@ const EXERCISE_TREE = [
     { id: "group_correction", name: "Group Correction Exercise", children: [{ id: "aiming_box", name: "Aiming Box Exercise" }, { id: "blank_target", name: "Blank Target Exercise" }] },
   ]},
   { id: "time", name: "Time", icon: Clock, children: [
-    { id: "snap_shot", name: "Snap Shot", children: [{ id: "snap_popup", name: "Snap Shot Pop Up Target" }] },
+    { id: "snap_shot", name: "Snap Shot", children: [
+      { id: "snap_popup", name: "Snap Shot Pop Up Target" },
+      { id: "snap_rotate", name: "Snap Shot Target Rotate" },
+      { id: "snap_color_discs", name: "Snap Shot Color Discs" },
+      { id: "snap_random", name: "Snap Shot Random" },
+      { id: "snap_random_adv", name: "Snap Shot Random Advance" },
+      { id: "snap_color_target", name: "Snap Shot Color Target" },
+      { id: "snap_shape_target", name: "Snap Shot Shape Target" },
+      { id: "snap_falling", name: "Snap Shot Falling Target" },
+      { id: "snap_falling_adv", name: "Snap Shot Falling Target Advance" },
+      { id: "snap_user_def", name: "Snap Shot User Defined Exercise" },
+      { id: "snap_user_moving", name: "Snap Shot User Defined Moving" },
+      { id: "snap_user_random", name: "Snap Shot User Defined Random" },
+      { id: "snap_user_moving_adv", name: "Snap Shot User Defined Moving Advance" },
+    ]},
     { id: "rapid_fire", name: "Rapid Fire", children: [{ id: "rapid_normal", name: "Rapid Normal" }, { id: "rapid_advanced", name: "Rapid Advanced" }] },
   ]},
   { id: "pendulum", name: "Pendulum", icon: RotateCcw, children: [
@@ -94,6 +108,58 @@ const EXERCISE_TREE = [
     ]},
   ]},
 ];
+
+// --- Common dropdown vocab ---
+const FIRING_POSITIONS = ["SU - Standing Unsupported", "SS - Standing Supported", "KU - Kneeling Unsupported", "KS - Kneeling Supported", "PU - Prone Unsupported", "PS - Prone Supported"];
+const TERRAINS = ["Range", "Urban", "Jungle", "Desert", "Snow", "Night"];
+const VEHICLE_TYPES = ["Infantry Soldier", "Light Vehicle", "Heavy Vehicle", "APC", "Tank", "Motorbike"];
+
+// --- Exercise unique parameters schema (derived from Exercises_Type.xlsx) ---
+type FieldDef =
+  | { kind: "number"; key: string; label: string; min?: number; max?: number; step?: number; unit?: string; default: number }
+  | { kind: "select"; key: string; label: string; options: string[]; default: string }
+  | { kind: "toggle"; key: string; label: string; default: boolean };
+
+const SESSION_TIME: FieldDef = { kind: "number", key: "sessionTime", label: "Session Time", min: 10, max: 600, step: 5, unit: "sec", default: 60 };
+const GROUP_SIZE: FieldDef = { kind: "number", key: "acceptedGroupSize", label: "Accepted Group Size", min: 1, max: 50, step: 1, unit: "cm", default: 10 };
+const SPEED: FieldDef = { kind: "number", key: "speed", label: "Target Speed", min: 1, max: 30, step: 1, unit: "km/h", default: 8 };
+const UPTIME: FieldDef = { kind: "number", key: "upTime", label: "Up Time", min: 1, max: 60, step: 1, unit: "sec", default: 5 };
+const DOWNTIME: FieldDef = { kind: "number", key: "downTime", label: "Down Time", min: 1, max: 60, step: 1, unit: "sec", default: 5 };
+const SNAPS: FieldDef = { kind: "number", key: "snaps", label: "Snaps (Count)", min: 1, max: 50, step: 1, default: 10 };
+const SELECT_LANE: FieldDef = { kind: "select", key: "snapLane", label: "Select Lane", options: ["All Lanes", ...Array.from({ length: 10 }, (_, i) => `Lane ${i + 1}`)], default: "All Lanes" };
+const VEHICLE: FieldDef = { kind: "select", key: "vehicleType", label: "Targets / Vehicle Type", options: VEHICLE_TYPES, default: VEHICLE_TYPES[0] };
+const DIFF_DISC: FieldDef = { kind: "toggle", key: "differentDisc", label: "Different Disc", default: false };
+const SHOW_DISC_TIME: FieldDef = { kind: "toggle", key: "showDiscTime", label: "Show Disc Time", default: true };
+
+const EXERCISE_CONFIG: Record<string, FieldDef[]> = {
+  // Application Fire
+  static_normal: [SESSION_TIME],
+  static_rotate: [SESSION_TIME],
+  // Grouping / Group Correction
+  grouping: [GROUP_SIZE, SESSION_TIME],
+  aiming_box: [GROUP_SIZE, SESSION_TIME],
+  blank_target: [GROUP_SIZE, SESSION_TIME],
+  // Moving Basic
+  lat_ltr: [SPEED], lat_rtl: [SPEED], head_on: [SPEED], head_off: [SPEED], oblique_on: [SPEED], oblique_off: [SPEED],
+  // Moving Advanced
+  lat_ltr_adv: [SPEED, VEHICLE], lat_rtl_adv: [SPEED, VEHICLE],
+  head_on_adv: [SPEED, VEHICLE], head_off_adv: [SPEED, VEHICLE],
+  oblique_on_adv: [SPEED, VEHICLE], oblique_off_adv: [SPEED, VEHICLE],
+  // Snap Shots
+  snap_popup: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_rotate: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_color_discs: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE, DIFF_DISC, SHOW_DISC_TIME],
+  snap_random: [UPTIME, DOWNTIME, SNAPS],
+  snap_random_adv: [UPTIME, DOWNTIME, SNAPS],
+  snap_color_target: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_shape_target: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_falling: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_falling_adv: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_user_def: [UPTIME, DOWNTIME, SNAPS],
+  snap_user_moving: [SPEED],
+  snap_user_random: [SPEED],
+  snap_user_moving_adv: [SPEED, VEHICLE],
+};
 
 const createDefaultOrbat = (): OrbatNode => ({
   id: "org", name: "Organization", type: "organization",
