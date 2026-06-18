@@ -11,6 +11,17 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import terrainRange from "@/assets/terrain-range.jpg";
+import terrainUrban from "@/assets/terrain-urban.jpg";
+import terrainJungle from "@/assets/terrain-jungle.jpg";
+import terrainDesert from "@/assets/terrain-desert.jpg";
+import terrainSnow from "@/assets/terrain-snow.jpg";
+import terrainNight from "@/assets/terrain-night.jpg";
+
+const TERRAIN_IMAGES: Record<string, string> = {
+  Range: terrainRange, Urban: terrainUrban, Jungle: terrainJungle,
+  Desert: terrainDesert, Snow: terrainSnow, Night: terrainNight,
+};
 import ThemeToggle from "@/components/ThemeToggle";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
