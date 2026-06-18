@@ -274,7 +274,205 @@ const ExerciseNode = ({ node, depth = 0, onSelect, selectedId }: { node: any; de
   );
 };
 
-// --- Main Mission Component ---
+// --- Exercise Configuration Panel ---
+const ExerciseConfigPanel = ({
+  exerciseId, exerciseName, laneCount, values, onChange,
+}: {
+  exerciseId: string;
+  exerciseName: string;
+  laneCount: number;
+  values: Record<string, any>;
+  onChange: (patch: Record<string, any>) => void;
+}) => {
+  const uniqueFields = EXERCISE_CONFIG[exerciseId] || [];
+
+  // Common fields always shown in Settings
+  const firingPosition = values.firingPosition ?? FIRING_POSITIONS[0];
+  const terrain = values.terrain ?? TERRAINS[0];
+  const allBullets = values.allBullets ?? 15;
+  const allLanes = values.allLanes ?? true;
+
+  // Default unique field values
+  const get = (f: FieldDef) => {
+    const v = values[f.key];
+    if (v !== undefined) return v;
+    return (f as any).default;
+  };
+
+  const renderField = (f: FieldDef) => {
+    if (f.kind === "number") {
+      const val = Number(get(f));
+      return (
+        <div key={f.key} className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{f.label}</Label>
+            <span className="text-sm font-mono font-bold text-primary tabular-nums">
+              {val}{f.unit ? <span className="ml-1 text-[10px] text-muted-foreground">{f.unit}</span> : null}
+            </span>
+          </div>
+          <Slider
+            value={[val]}
+            min={f.min ?? 0} max={f.max ?? 100} step={f.step ?? 1}
+            onValueChange={(v) => onChange({ [f.key]: v[0] })}
+          />
+        </div>
+      );
+    }
+    if (f.kind === "select") {
+      return (
+        <div key={f.key} className="space-y-2">
+          <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{f.label}</Label>
+          <Select value={String(get(f))} onValueChange={(v) => onChange({ [f.key]: v })}>
+            <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>{f.options.map(o => <SelectItem key={o} value={o} className="text-xs">{o}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    return (
+      <div key={f.key} className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/20 px-3 py-2">
+        <Label className="text-xs font-medium">{f.label}</Label>
+        <Switch checked={Boolean(get(f))} onCheckedChange={(v) => onChange({ [f.key]: v })} />
+      </div>
+    );
+  };
+
+  return (
+    <motion.div
+      key={exerciseId}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.25 }}
+      className="h-full flex flex-col gap-3 overflow-hidden"
+    >
+      {/* Header */}
+      <div className="glass-tile-elevated rounded-2xl gradient-border px-5 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/30 bg-primary/10">
+            <Crosshair className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">Exercise</div>
+            <h2 className="text-base font-bold text-foreground leading-tight">{exerciseName}</h2>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="rounded-md bg-status-online/10 px-2 py-0.5 font-mono text-[10px] text-status-online border border-status-online/20">
+            {laneCount} LANE{laneCount === 1 ? "" : "S"}
+          </span>
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1 pr-2">
+        <div className="grid grid-cols-2 gap-3">
+          {/* Settings */}
+          <section className="glass-tile rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Settings2 className="h-4 w-4 text-primary" />
+              <h3 className="text-xs font-mono uppercase tracking-[0.15em] text-foreground">Settings</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Firing Position</Label>
+                <Select value={firingPosition} onValueChange={(v) => onChange({ firingPosition: v })}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>{FIRING_POSITIONS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Terrain</Label>
+                <Select value={terrain} onValueChange={(v) => onChange({ terrain: v })}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>{TERRAINS.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              {/* Terrain preview */}
+              <div className="relative h-28 rounded-lg overflow-hidden border border-border/40 bg-gradient-to-br from-primary/10 via-muted/20 to-accent/10">
+                <div className="absolute inset-0 hud-grid opacity-40" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <MapPin className="h-6 w-6 mx-auto text-primary mb-1" />
+                    <div className="text-xs font-mono uppercase tracking-wider text-foreground">{terrain}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Advance Settings */}
+          <section className="glass-tile rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="h-4 w-4 text-accent" />
+              <h3 className="text-xs font-mono uppercase tracking-[0.15em] text-foreground">Advance Settings</h3>
+              <span className="ml-auto text-[10px] font-mono text-muted-foreground">
+                {uniqueFields.length + 1} param{uniqueFields.length === 0 ? "" : "s"}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {/* Always show Session Time unless exercise already has it */}
+              {!uniqueFields.some(f => f.key === "sessionTime") && renderField(SESSION_TIME)}
+              {uniqueFields.map(renderField)}
+              {uniqueFields.length === 0 && (
+                <p className="text-[11px] text-muted-foreground italic">No additional parameters for this exercise.</p>
+              )}
+            </div>
+          </section>
+
+          {/* All Bullets / Lanes */}
+          <section className="glass-tile rounded-2xl p-4 space-y-3 col-span-2">
+            <div className="flex items-center gap-2 mb-1">
+              <ListChecks className="h-4 w-4 text-status-warning" />
+              <h3 className="text-xs font-mono uppercase tracking-[0.15em] text-foreground">All Bullets / Lanes</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Bullets per Lane</Label>
+                <Input
+                  type="number" min={1} max={500}
+                  value={allBullets}
+                  onChange={(e) => onChange({ allBullets: parseInt(e.target.value) || 0 })}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Apply To</Label>
+                <Select value={allLanes ? "all" : "selected"} onValueChange={(v) => onChange({ allLanes: v === "all" })}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" className="text-xs">All Lanes</SelectItem>
+                    <SelectItem value="selected" className="text-xs">Selected Lanes Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Estimated Total</Label>
+                <div className="h-9 flex items-center px-3 rounded-md border border-border/40 bg-muted/20 font-mono text-xs">
+                  <Gauge className="h-3.5 w-3.5 mr-2 text-primary" />
+                  {(allBullets || 0) * Math.max(laneCount, 1)} rounds
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </ScrollArea>
+
+      {/* Action bar */}
+      <div className="glass-tile-elevated rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <Timer className="h-3.5 w-3.5" />
+          <span className="font-mono">Ready to deploy exercise to {laneCount || 0} lane{laneCount === 1 ? "" : "s"}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2"><Upload className="h-4 w-4" /> Load</Button>
+          <Button size="sm" className="gap-2"><Play className="h-4 w-4" /> Start Exercise</Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+
 const Mission = () => {
   const navigate = useNavigate();
   const [activePanel, setActivePanel] = useState<"trainee" | "exercise">("trainee");
