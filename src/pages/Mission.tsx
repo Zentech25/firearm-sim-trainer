@@ -571,26 +571,21 @@ const Mission = () => {
                     </ScrollArea>
                   </CardContent>
                 </div>
-                <div className="flex-1 flex items-center justify-center">
+                <div className="flex-1 min-w-0">
                   <AnimatePresence mode="wait">
                     {selectedExerciseName ? (
-                      <motion.div key={selectedExercise} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="text-center">
-                        <div className="glass-tile-elevated rounded-2xl max-w-md">
-                          <CardContent className="p-8">
-                            <motion.div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10"
-                              animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 4, repeat: Infinity }}>
-                              <Crosshair className="h-8 w-8 text-primary" />
-                            </motion.div>
-                            <h2 className="text-xl font-bold text-foreground mb-2">{selectedExerciseName}</h2>
-                            <p className="text-sm text-muted-foreground mb-6">Configure and launch this exercise for your trainees</p>
-                            <Button className="gap-2" size="lg"><Target className="h-4 w-4" /> Start Exercise</Button>
-                          </CardContent>
-                        </div>
-                      </motion.div>
+                      <ExerciseConfigPanel
+                        key={selectedExercise}
+                        exerciseId={selectedExercise}
+                        exerciseName={selectedExerciseName}
+                        laneCount={laneTrainees.length}
+                        values={configValues[selectedExercise] || {}}
+                        onChange={(patch) => setConfigValues(prev => ({ ...prev, [selectedExercise]: { ...(prev[selectedExercise] || {}), ...patch } }))}
+                      />
                     ) : (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-muted-foreground">
-                        <Crosshair className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                        <p className="text-sm">Select an exercise from the tree</p>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
+                        <Crosshair className="h-12 w-12 mb-3 opacity-30" />
+                        <p className="text-sm">Select an exercise from the tree to configure it</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
