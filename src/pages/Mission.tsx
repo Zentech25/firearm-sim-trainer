@@ -1,12 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, ChevronRight, ChevronDown,
   Target, Clock, Move, RotateCcw, Crosshair, Folder, FolderOpen,
   Shield, Anchor, Plane, Building2, Layers, ChevronLeft, Search,
-  ArrowDown, ArrowUp, X,
+  ArrowDown, ArrowUp, X, Settings2, Gauge, Timer, MapPin, Play, Upload,
+  Sparkles, ListChecks,
 } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import ThemeToggle from "@/components/ThemeToggle";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
