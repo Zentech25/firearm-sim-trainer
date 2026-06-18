@@ -399,13 +399,21 @@ const ExerciseConfigPanel = ({
                 </Select>
               </div>
               {/* Terrain preview */}
-              <div className="relative h-28 rounded-lg overflow-hidden border border-border/40 bg-gradient-to-br from-primary/10 via-muted/20 to-accent/10">
-                <div className="absolute inset-0 hud-grid opacity-40" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin className="h-6 w-6 mx-auto text-primary mb-1" />
-                    <div className="text-xs font-mono uppercase tracking-wider text-foreground">{terrain}</div>
+              <div className="relative h-32 rounded-lg overflow-hidden border border-border/40 bg-muted/20">
+                <img
+                  src={TERRAIN_IMAGES[terrain]}
+                  alt={`${terrain} terrain preview`}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/20 to-transparent" />
+                <div className="absolute inset-0 hud-grid opacity-30 mix-blend-overlay" />
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-background/60 backdrop-blur-sm border border-primary/30">
+                    <MapPin className="h-3 w-3 text-primary" />
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-foreground font-semibold">{terrain}</span>
                   </div>
+                  <span className="text-[9px] font-mono text-primary/80 px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20">LIVE</span>
                 </div>
               </div>
             </div>
