@@ -1,12 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users, ChevronRight, ChevronDown,
   Target, Clock, Move, RotateCcw, Crosshair, Folder, FolderOpen,
   Shield, Anchor, Plane, Building2, Layers, ChevronLeft, Search,
-  ArrowDown, ArrowUp, X,
+  ArrowDown, ArrowUp, X, Settings2, Gauge, Timer, MapPin, Play, Upload,
+  Sparkles, ListChecks,
 } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import ThemeToggle from "@/components/ThemeToggle";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -70,7 +74,21 @@ const EXERCISE_TREE = [
     { id: "group_correction", name: "Group Correction Exercise", children: [{ id: "aiming_box", name: "Aiming Box Exercise" }, { id: "blank_target", name: "Blank Target Exercise" }] },
   ]},
   { id: "time", name: "Time", icon: Clock, children: [
-    { id: "snap_shot", name: "Snap Shot", children: [{ id: "snap_popup", name: "Snap Shot Pop Up Target" }] },
+    { id: "snap_shot", name: "Snap Shot", children: [
+      { id: "snap_popup", name: "Snap Shot Pop Up Target" },
+      { id: "snap_rotate", name: "Snap Shot Target Rotate" },
+      { id: "snap_color_discs", name: "Snap Shot Color Discs" },
+      { id: "snap_random", name: "Snap Shot Random" },
+      { id: "snap_random_adv", name: "Snap Shot Random Advance" },
+      { id: "snap_color_target", name: "Snap Shot Color Target" },
+      { id: "snap_shape_target", name: "Snap Shot Shape Target" },
+      { id: "snap_falling", name: "Snap Shot Falling Target" },
+      { id: "snap_falling_adv", name: "Snap Shot Falling Target Advance" },
+      { id: "snap_user_def", name: "Snap Shot User Defined Exercise" },
+      { id: "snap_user_moving", name: "Snap Shot User Defined Moving" },
+      { id: "snap_user_random", name: "Snap Shot User Defined Random" },
+      { id: "snap_user_moving_adv", name: "Snap Shot User Defined Moving Advance" },
+    ]},
     { id: "rapid_fire", name: "Rapid Fire", children: [{ id: "rapid_normal", name: "Rapid Normal" }, { id: "rapid_advanced", name: "Rapid Advanced" }] },
   ]},
   { id: "pendulum", name: "Pendulum", icon: RotateCcw, children: [
@@ -90,6 +108,58 @@ const EXERCISE_TREE = [
     ]},
   ]},
 ];
+
+// --- Common dropdown vocab ---
+const FIRING_POSITIONS = ["SU - Standing Unsupported", "SS - Standing Supported", "KU - Kneeling Unsupported", "KS - Kneeling Supported", "PU - Prone Unsupported", "PS - Prone Supported"];
+const TERRAINS = ["Range", "Urban", "Jungle", "Desert", "Snow", "Night"];
+const VEHICLE_TYPES = ["Infantry Soldier", "Light Vehicle", "Heavy Vehicle", "APC", "Tank", "Motorbike"];
+
+// --- Exercise unique parameters schema (derived from Exercises_Type.xlsx) ---
+type FieldDef =
+  | { kind: "number"; key: string; label: string; min?: number; max?: number; step?: number; unit?: string; default: number }
+  | { kind: "select"; key: string; label: string; options: string[]; default: string }
+  | { kind: "toggle"; key: string; label: string; default: boolean };
+
+const SESSION_TIME: FieldDef = { kind: "number", key: "sessionTime", label: "Session Time", min: 10, max: 600, step: 5, unit: "sec", default: 60 };
+const GROUP_SIZE: FieldDef = { kind: "number", key: "acceptedGroupSize", label: "Accepted Group Size", min: 1, max: 50, step: 1, unit: "cm", default: 10 };
+const SPEED: FieldDef = { kind: "number", key: "speed", label: "Target Speed", min: 1, max: 30, step: 1, unit: "km/h", default: 8 };
+const UPTIME: FieldDef = { kind: "number", key: "upTime", label: "Up Time", min: 1, max: 60, step: 1, unit: "sec", default: 5 };
+const DOWNTIME: FieldDef = { kind: "number", key: "downTime", label: "Down Time", min: 1, max: 60, step: 1, unit: "sec", default: 5 };
+const SNAPS: FieldDef = { kind: "number", key: "snaps", label: "Snaps (Count)", min: 1, max: 50, step: 1, default: 10 };
+const SELECT_LANE: FieldDef = { kind: "select", key: "snapLane", label: "Select Lane", options: ["All Lanes", ...Array.from({ length: 10 }, (_, i) => `Lane ${i + 1}`)], default: "All Lanes" };
+const VEHICLE: FieldDef = { kind: "select", key: "vehicleType", label: "Targets / Vehicle Type", options: VEHICLE_TYPES, default: VEHICLE_TYPES[0] };
+const DIFF_DISC: FieldDef = { kind: "toggle", key: "differentDisc", label: "Different Disc", default: false };
+const SHOW_DISC_TIME: FieldDef = { kind: "toggle", key: "showDiscTime", label: "Show Disc Time", default: true };
+
+const EXERCISE_CONFIG: Record<string, FieldDef[]> = {
+  // Application Fire
+  static_normal: [SESSION_TIME],
+  static_rotate: [SESSION_TIME],
+  // Grouping / Group Correction
+  grouping: [GROUP_SIZE, SESSION_TIME],
+  aiming_box: [GROUP_SIZE, SESSION_TIME],
+  blank_target: [GROUP_SIZE, SESSION_TIME],
+  // Moving Basic
+  lat_ltr: [SPEED], lat_rtl: [SPEED], head_on: [SPEED], head_off: [SPEED], oblique_on: [SPEED], oblique_off: [SPEED],
+  // Moving Advanced
+  lat_ltr_adv: [SPEED, VEHICLE], lat_rtl_adv: [SPEED, VEHICLE],
+  head_on_adv: [SPEED, VEHICLE], head_off_adv: [SPEED, VEHICLE],
+  oblique_on_adv: [SPEED, VEHICLE], oblique_off_adv: [SPEED, VEHICLE],
+  // Snap Shots
+  snap_popup: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_rotate: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_color_discs: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE, DIFF_DISC, SHOW_DISC_TIME],
+  snap_random: [UPTIME, DOWNTIME, SNAPS],
+  snap_random_adv: [UPTIME, DOWNTIME, SNAPS],
+  snap_color_target: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_shape_target: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_falling: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_falling_adv: [UPTIME, DOWNTIME, SNAPS, SELECT_LANE],
+  snap_user_def: [UPTIME, DOWNTIME, SNAPS],
+  snap_user_moving: [SPEED],
+  snap_user_random: [SPEED],
+  snap_user_moving_adv: [SPEED, VEHICLE],
+};
 
 const createDefaultOrbat = (): OrbatNode => ({
   id: "org", name: "Organization", type: "organization",
@@ -204,7 +274,205 @@ const ExerciseNode = ({ node, depth = 0, onSelect, selectedId }: { node: any; de
   );
 };
 
-// --- Main Mission Component ---
+// --- Exercise Configuration Panel ---
+const ExerciseConfigPanel = ({
+  exerciseId, exerciseName, laneCount, values, onChange,
+}: {
+  exerciseId: string;
+  exerciseName: string;
+  laneCount: number;
+  values: Record<string, any>;
+  onChange: (patch: Record<string, any>) => void;
+}) => {
+  const uniqueFields = EXERCISE_CONFIG[exerciseId] || [];
+
+  // Common fields always shown in Settings
+  const firingPosition = values.firingPosition ?? FIRING_POSITIONS[0];
+  const terrain = values.terrain ?? TERRAINS[0];
+  const allBullets = values.allBullets ?? 15;
+  const allLanes = values.allLanes ?? true;
+
+  // Default unique field values
+  const get = (f: FieldDef) => {
+    const v = values[f.key];
+    if (v !== undefined) return v;
+    return (f as any).default;
+  };
+
+  const renderField = (f: FieldDef) => {
+    if (f.kind === "number") {
+      const val = Number(get(f));
+      return (
+        <div key={f.key} className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{f.label}</Label>
+            <span className="text-sm font-mono font-bold text-primary tabular-nums">
+              {val}{f.unit ? <span className="ml-1 text-[10px] text-muted-foreground">{f.unit}</span> : null}
+            </span>
+          </div>
+          <Slider
+            value={[val]}
+            min={f.min ?? 0} max={f.max ?? 100} step={f.step ?? 1}
+            onValueChange={(v) => onChange({ [f.key]: v[0] })}
+          />
+        </div>
+      );
+    }
+    if (f.kind === "select") {
+      return (
+        <div key={f.key} className="space-y-2">
+          <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{f.label}</Label>
+          <Select value={String(get(f))} onValueChange={(v) => onChange({ [f.key]: v })}>
+            <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>{f.options.map(o => <SelectItem key={o} value={o} className="text-xs">{o}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    return (
+      <div key={f.key} className="flex items-center justify-between rounded-lg border border-border/40 bg-muted/20 px-3 py-2">
+        <Label className="text-xs font-medium">{f.label}</Label>
+        <Switch checked={Boolean(get(f))} onCheckedChange={(v) => onChange({ [f.key]: v })} />
+      </div>
+    );
+  };
+
+  return (
+    <motion.div
+      key={exerciseId}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.25 }}
+      className="h-full flex flex-col gap-3 overflow-hidden"
+    >
+      {/* Header */}
+      <div className="glass-tile-elevated rounded-2xl gradient-border px-5 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/30 bg-primary/10">
+            <Crosshair className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">Exercise</div>
+            <h2 className="text-base font-bold text-foreground leading-tight">{exerciseName}</h2>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="rounded-md bg-status-online/10 px-2 py-0.5 font-mono text-[10px] text-status-online border border-status-online/20">
+            {laneCount} LANE{laneCount === 1 ? "" : "S"}
+          </span>
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1 pr-2">
+        <div className="grid grid-cols-2 gap-3">
+          {/* Settings */}
+          <section className="glass-tile rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Settings2 className="h-4 w-4 text-primary" />
+              <h3 className="text-xs font-mono uppercase tracking-[0.15em] text-foreground">Settings</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Firing Position</Label>
+                <Select value={firingPosition} onValueChange={(v) => onChange({ firingPosition: v })}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>{FIRING_POSITIONS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Terrain</Label>
+                <Select value={terrain} onValueChange={(v) => onChange({ terrain: v })}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>{TERRAINS.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              {/* Terrain preview */}
+              <div className="relative h-28 rounded-lg overflow-hidden border border-border/40 bg-gradient-to-br from-primary/10 via-muted/20 to-accent/10">
+                <div className="absolute inset-0 hud-grid opacity-40" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <MapPin className="h-6 w-6 mx-auto text-primary mb-1" />
+                    <div className="text-xs font-mono uppercase tracking-wider text-foreground">{terrain}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Advance Settings */}
+          <section className="glass-tile rounded-2xl p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="h-4 w-4 text-accent" />
+              <h3 className="text-xs font-mono uppercase tracking-[0.15em] text-foreground">Advance Settings</h3>
+              <span className="ml-auto text-[10px] font-mono text-muted-foreground">
+                {uniqueFields.length + 1} param{uniqueFields.length === 0 ? "" : "s"}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {/* Always show Session Time unless exercise already has it */}
+              {!uniqueFields.some(f => f.key === "sessionTime") && renderField(SESSION_TIME)}
+              {uniqueFields.map(renderField)}
+              {uniqueFields.length === 0 && (
+                <p className="text-[11px] text-muted-foreground italic">No additional parameters for this exercise.</p>
+              )}
+            </div>
+          </section>
+
+          {/* All Bullets / Lanes */}
+          <section className="glass-tile rounded-2xl p-4 space-y-3 col-span-2">
+            <div className="flex items-center gap-2 mb-1">
+              <ListChecks className="h-4 w-4 text-status-warning" />
+              <h3 className="text-xs font-mono uppercase tracking-[0.15em] text-foreground">All Bullets / Lanes</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Bullets per Lane</Label>
+                <Input
+                  type="number" min={1} max={500}
+                  value={allBullets}
+                  onChange={(e) => onChange({ allBullets: parseInt(e.target.value) || 0 })}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Apply To</Label>
+                <Select value={allLanes ? "all" : "selected"} onValueChange={(v) => onChange({ allLanes: v === "all" })}>
+                  <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" className="text-xs">All Lanes</SelectItem>
+                    <SelectItem value="selected" className="text-xs">Selected Lanes Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Estimated Total</Label>
+                <div className="h-9 flex items-center px-3 rounded-md border border-border/40 bg-muted/20 font-mono text-xs">
+                  <Gauge className="h-3.5 w-3.5 mr-2 text-primary" />
+                  {(allBullets || 0) * Math.max(laneCount, 1)} rounds
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </ScrollArea>
+
+      {/* Action bar */}
+      <div className="glass-tile-elevated rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <Timer className="h-3.5 w-3.5" />
+          <span className="font-mono">Ready to deploy exercise to {laneCount || 0} lane{laneCount === 1 ? "" : "s"}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2"><Upload className="h-4 w-4" /> Load</Button>
+          <Button size="sm" className="gap-2"><Play className="h-4 w-4" /> Start Exercise</Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+
 const Mission = () => {
   const navigate = useNavigate();
   const [activePanel, setActivePanel] = useState<"trainee" | "exercise">("trainee");
@@ -224,6 +492,7 @@ const Mission = () => {
   // Exercise state
   const [selectedExercise, setSelectedExercise] = useState("");
   const [selectedExerciseName, setSelectedExerciseName] = useState("");
+  const [configValues, setConfigValues] = useState<Record<string, Record<string, any>>>({});
 
   const traineeMatchesOrbat = useCallback((trainee: Trainee): boolean => {
     return trainee.orbatPath.includes(selectedOrbatId);
@@ -501,26 +770,21 @@ const Mission = () => {
                     </ScrollArea>
                   </CardContent>
                 </div>
-                <div className="flex-1 flex items-center justify-center">
+                <div className="flex-1 min-w-0">
                   <AnimatePresence mode="wait">
                     {selectedExerciseName ? (
-                      <motion.div key={selectedExercise} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="text-center">
-                        <div className="glass-tile-elevated rounded-2xl max-w-md">
-                          <CardContent className="p-8">
-                            <motion.div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10"
-                              animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 4, repeat: Infinity }}>
-                              <Crosshair className="h-8 w-8 text-primary" />
-                            </motion.div>
-                            <h2 className="text-xl font-bold text-foreground mb-2">{selectedExerciseName}</h2>
-                            <p className="text-sm text-muted-foreground mb-6">Configure and launch this exercise for your trainees</p>
-                            <Button className="gap-2" size="lg"><Target className="h-4 w-4" /> Start Exercise</Button>
-                          </CardContent>
-                        </div>
-                      </motion.div>
+                      <ExerciseConfigPanel
+                        key={selectedExercise}
+                        exerciseId={selectedExercise}
+                        exerciseName={selectedExerciseName}
+                        laneCount={laneTrainees.length}
+                        values={configValues[selectedExercise] || {}}
+                        onChange={(patch) => setConfigValues(prev => ({ ...prev, [selectedExercise]: { ...(prev[selectedExercise] || {}), ...patch } }))}
+                      />
                     ) : (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-muted-foreground">
-                        <Crosshair className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                        <p className="text-sm">Select an exercise from the tree</p>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
+                        <Crosshair className="h-12 w-12 mb-3 opacity-30" />
+                        <p className="text-sm">Select an exercise from the tree to configure it</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
