@@ -294,6 +294,7 @@ const Mission = () => {
   // Exercise state
   const [selectedExercise, setSelectedExercise] = useState("");
   const [selectedExerciseName, setSelectedExerciseName] = useState("");
+  const [configValues, setConfigValues] = useState<Record<string, Record<string, any>>>({});
 
   const traineeMatchesOrbat = useCallback((trainee: Trainee): boolean => {
     return trainee.orbatPath.includes(selectedOrbatId);
