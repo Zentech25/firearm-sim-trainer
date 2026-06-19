@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, Lock, ChevronDown, Globe, User, Shield, Eye, EyeOff } from "lucide-react";
+import ParticleField from "@/components/ParticleField";
 
 const ROLES = [
   { value: "INSTRUCTOR", icon: User, label: "Instructor" },
