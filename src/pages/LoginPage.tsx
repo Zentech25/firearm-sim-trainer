@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Crosshair, Lock, ChevronDown, Globe, User, Shield, Eye, EyeOff } from "lucide-react";
+import ParticleField from "@/components/ParticleField";
 
 const ROLES = [
   { value: "INSTRUCTOR", icon: User, label: "Instructor" },
@@ -38,50 +39,31 @@ const LoginPage = () => {
       {/* HUD grid background */}
       <div className="absolute inset-0 hud-grid" />
 
-      {/* Animated radial glow - dual colors */}
+      {/* Canvas particle network */}
+      <ParticleField />
+
+      {/* Animated radial glow - teal / navy tones */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 z-0"
         animate={{
           background: [
-            "radial-gradient(600px circle at 30% 40%, hsl(265 75% 55% / 0.06), transparent 60%), radial-gradient(400px circle at 70% 60%, hsl(210 75% 55% / 0.04), transparent 60%)",
-            "radial-gradient(800px circle at 50% 50%, hsl(265 75% 55% / 0.08), transparent 60%), radial-gradient(500px circle at 30% 70%, hsl(145 65% 48% / 0.04), transparent 60%)",
-            "radial-gradient(600px circle at 70% 30%, hsl(210 75% 55% / 0.06), transparent 60%), radial-gradient(400px circle at 40% 60%, hsl(265 75% 55% / 0.04), transparent 60%)",
-            "radial-gradient(600px circle at 30% 40%, hsl(265 75% 55% / 0.06), transparent 60%), radial-gradient(400px circle at 70% 60%, hsl(210 75% 55% / 0.04), transparent 60%)",
+            "radial-gradient(700px circle at 30% 40%, hsl(190 80% 50% / 0.10), transparent 65%), radial-gradient(500px circle at 70% 60%, hsl(215 75% 55% / 0.06), transparent 60%)",
+            "radial-gradient(900px circle at 50% 50%, hsl(190 80% 50% / 0.12), transparent 65%), radial-gradient(600px circle at 30% 70%, hsl(38 92% 56% / 0.05), transparent 60%)",
+            "radial-gradient(700px circle at 70% 30%, hsl(215 75% 55% / 0.10), transparent 65%), radial-gradient(500px circle at 40% 60%, hsl(190 80% 50% / 0.06), transparent 60%)",
+            "radial-gradient(700px circle at 30% 40%, hsl(190 80% 50% / 0.10), transparent 65%), radial-gradient(500px circle at 70% 60%, hsl(215 75% 55% / 0.06), transparent 60%)",
           ],
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
 
       {/* Scan line */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div
           className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent"
           animate={{ y: ["-10%", "110vh"] }}
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
         />
       </div>
-
-      {/* Floating particles */}
-      {Array.from({ length: 20 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute h-1 w-1 rounded-full bg-primary/20"
-          initial={{
-            x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
-            y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 800),
-          }}
-          animate={{
-            y: [null, Math.random() * -200, Math.random() * 200],
-            opacity: [0, 0.6, 0],
-          }}
-          transition={{
-            duration: 6 + Math.random() * 6,
-            repeat: Infinity,
-            delay: Math.random() * 4,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
 
       {/* Main content */}
       <motion.div
